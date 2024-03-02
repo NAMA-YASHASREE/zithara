@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Data</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    /* Custom Styles */
+    .container {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app" class="container">
+  <h1>Customer Data</h1>
+  <div>
+    <input type="text" v-model="search" placeholder="Search...">
+    <select v-model="sortBy" @change="sortData">
+      <option value="date">Sort by Date</option>
+      <option value="time">Sort by Time</option>
+    </select>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>S.No</th>
+        <th>Customer Name</th>
+        <th>Age</th>
+        <th>Phone</th>
+        <th>Location</th>
+        <th>Date</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(customer, index) in sortedCustomers" :key="index">
+        <td>{{ customer.sno }}</td>
+        <td>{{ customer.customer_name }}</td>
+        <td>{{ customer.age }}</td>
+        <td>{{ customer.phone }}</td>
+        <td>{{ customer.location }}</td>
+        <td>{{ formatDate(customer.created_at).date }}</td>
+        <td>{{ formatDate(customer.created_at).time }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <nav aria-label="Page navigation">
+    <ul class="pagination">
+      <li class="page-item" v-for="page in totalPages" :key="page">
+        <a class="page-link" href="#" @click.prevent="currentPage = page">{{ page }}</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.min.js"></script>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      customers: [ { sno: 1, customer_name: 'John Smith', age: 35, phone: '123-456-7890', location: 'New York', created_at: '2024-03-01 08:00:00' },
+    { sno: 2, customer_name: 'Alice Johnson', age: 28, phone: '234-567-8901', location: 'Los Angeles', created_at: '2024-03-01 08:05:00' },
+    { sno: 3, customer_name: 'Michael Brown', age: 42, phone: '345-678-9012', location: 'Chicago', created_at: '2024-03-01 08:10:00' },
+    { sno: 4, customer_name: 'Emily Davis', age: 31, phone: '456-789-0123', location: 'Houston', created_at: '2024-03-01 08:15:00' },
+    { sno: 5, customer_name: 'Sarah Wilson', age: 25, phone: '567-890-1234', location: 'Miami', created_at: '2024-03-01 08:20:00' },
+    { sno: 6, customer_name: 'David Jones', age: 38, phone: '678-901-2345', location: 'San Francisco', created_at: '2024-03-01 08:25:00' },
+    { sno: 7, customer_name: 'Jessica Lee', age: 29, phone: '789-012-3456', location: 'Seattle', created_at: '2024-03-01 08:30:00' },
+    { sno: 8, customer_name: 'Christopher Brown', age: 45, phone: '890-123-4567', location: 'Dallas', created_at: '2024-03-01 08:35:00' },
+    { sno: 9, customer_name: 'Samantha Taylor', age: 33, phone: '901-234-5678', location: 'Boston', created_at: '2024-03-01 08:40:00' },
+    { sno: 10, customer_name: 'Daniel Martinez', age: 27, phone: '012-345-6789', location: 'Atlanta', created_at: '2024-03-01 08:45:00' },
+    { sno: 11, customer_name: 'Ashley Garcia', age: 39, phone: '123-456-7890', location: 'Denver', created_at: '2024-03-01 08:50:00' },
+    { sno: 12, customer_name: 'Joshua Rodriguez', age: 30, phone: '234-567-8901', location: 'Philadelphia', created_at: '2024-03-01 08:55:00' },
+    { sno: 13, customer_name: 'Amanda Hernandez', age: 36, phone: '345-678-9012', location: 'Phoenix', created_at: '2024-03-01 09:00:00' },
+    { sno: 14, customer_name: 'Andrew Lopez', age: 26, phone: '456-789-0123', location: 'San Diego', created_at: '2024-03-01 09:05:00' },
+    { sno: 15, customer_name: 'Olivia Martinez', age: 43, phone: '567-890-1234', location: 'Austin', created_at: '2024-03-01 09:10:00' },
+    { sno: 16, customer_name: 'Ethan Nguyen', age: 32, phone: '678-901-2345', location: 'Portland', created_at: '2024-03-01 09:15:00' },
+    { sno: 17, customer_name: 'Madison Kim', age: 24, phone: '789-012-3456', location: 'San Antonio', created_at: '2024-03-01 09:20:00' },
+    { sno: 18, customer_name: 'William King', age: 37, phone: '890-123-4567', location: 'Minneapolis', created_at: '2024-03-01 09:25:00' },
+    { sno: 19, customer_name: 'Sofia Chen', age: 31, phone: '901-234-5678', location: 'Baltimore', created_at: '2024-03-01 09:30:00' },
+    { sno: 20, customer_name: 'Benjamin Wu', age: 28, phone: '012-345-6789', location: 'Las Vegas', created_at: '2024-03-01 09:35:00' },
+    { sno: 21, customer_name: 'Mia Gupta', age: 40, phone: '123-456-7890', location: 'Detroit', created_at: '2024-03-01 09:40:00' },
+    { sno: 22, customer_name: 'Alexander Patel', age: 29, phone: '234-567-8901', location: 'Nashville', created_at: '2024-03-01 09:45:00' },
+    { sno: 23, customer_name: 'Chloe Kim', age: 34, phone: '345-678-9012', location: 'Orlando', created_at: '2024-03-01 09:50:00' },
+    { sno: 24, customer_name: 'Christian Khan', age: 27, phone: '456-789-0123', location: 'Tampa', created_at: '2024-03-01 09:55:00' },
+    { sno: 25, customer_name: 'Isabella Singh', age: 44, phone: '567-890-1234', location: 'Raleigh', created_at: '2024-03-01 10:00:00' },
+    { sno: 26, customer_name: 'Ethan Johnson', age: 33, phone: '678-901-2345', location: 'Sacramento', created_at: '2024-03-01 10:05:00' },
+    { sno: 27, customer_name: 'Ava Gupta', age: 25, phone: '789-012-3456', location: 'Charlotte', created_at: '2024-03-01 10:10:00' },
+    { sno: 28, customer_name: 'Michael Lee', age: 38, phone: '890-123-4567', location: 'Salt Lake City', created_at: '2024-03-01 10:15:00' },
+    { sno: 29, customer_name: 'Harper Brown', age: 32, phone: '901-234-5678', location: 'Pittsburgh', created_at: '2024-03-01 10:20:00' },
+    { sno: 30, customer_name: 'Evelyn Park', age: 26, phone: '012-345-6789', location: 'Cincinnati', created_at: '2024-03-01 10:25:00' },
+    { sno: 31, customer_name: 'Dylan Nguyen', age: 41, phone: '123-456-7890', location: 'Kansas City', created_at: '2024-03-01 10:30:00' },
+    { sno: 32, customer_name: 'Scarlett Kim', age: 30, phone: '234-567-8901', location: 'Indianapolis', created_at: '2024-03-01 10:35:00' },
+    { sno: 33, customer_name: 'Gabriel Martinez', age: 23, phone: '345-678-9012', location: 'Honolulu', created_at: '2024-03-01 10:40:00' },
+    { sno: 34, customer_name: 'Zoe Khan', age: 37, phone: '456-789-0123', location: 'Oklahoma City', created_at: '2024-03-01 10:45:00' },
+    { sno: 35, customer_name: 'Jackson Chen', age: 29, phone: '567-890-1234', location: 'Milwaukee', created_at: '2024-03-01 10:50:00' },
+    { sno: 36, customer_name: 'Penelope Patel', age: 42, phone: '678-901-2345', location: 'Memphis', created_at: '2024-03-01 10:55:00' },
+    { sno: 37, customer_name: 'Layla Park', age: 31, phone: '789-012-3456', location: 'Austin', created_at: '2024-03-01 11:00:00' },
+    { sno: 38, customer_name: 'Isaac Gupta', age: 27, phone: '890-123-4567', location: 'Louisville', created_at: '2024-03-01 11:05:00' },
+    { sno: 39, customer_name: 'Julian Kim', age: 39, phone: '901-234-5678', location: 'Jacksonville', created_at: '2024-03-01 11:10:00' },
+    { sno: 40, customer_name: 'Riley Lee', age: 28, phone: '012-345-6789', location: 'Columbus', created_at: '2024-03-01 11:15:00' },
+    { sno: 41, customer_name: 'Clara Khan', age: 35, phone: '123-456-7890', location: 'Charlotte', created_at: '2024-03-01 11:20:00' },
+    { sno: 42, customer_name: 'Leonardo Nguyen', age: 26, phone: '234-567-8901', location: 'Las Vegas', created_at: '2024-03-01 11:25:00' },
+    { sno: 43, customer_name: 'Elena Park', age: 43, phone: '345-678-9012', location: 'Denver', created_at: '2024-03-01 11:30:00' },
+    { sno: 44, customer_name: 'Miles Brown', age: 33, phone: '456-789-0123', location: 'Nashville', created_at: '2024-03-01 11:35:00' },
+    { sno: 45, customer_name: 'Hazel Kim', age: 25, phone: '567-890-1234', location: 'Portland', created_at: '2024-03-01 11:40:00' },
+    { sno: 46, customer_name: 'Nora Martinez', age: 36, phone: '678-901-2345', location: 'Seattle', created_at: '2024-03-01 11:45:00' },
+    { sno: 47, customer_name: 'Eli Patel', age: 30, phone: '789-012-3456', location: 'Chicago', created_at: '2024-03-01 11:50:00' },
+    { sno: 48, customer_name: 'Aurora Gupta', age: 39, phone: '890-123-4567', location: 'Houston', created_at: '2024-03-01 11:55:00' },
+    { sno: 49, customer_name: 'Luke Lee', age: 28, phone: '901-234-5678', location: 'San Francisco', created_at: '2024-03-01 12:00:00' },
+    { sno: 50, customer_name: 'Maya Khan', age: 42, phone: '012-345-6789', location: 'Miami', created_at: '2024-03-01 12:05:00' } ],
+      search: '',
+      sortBy: 'date',
+      currentPage: 1,
+      pageSize: 20
+    },
+    computed: {
+      sortedCustomers() {
+        return this.filteredCustomers.sort((a, b) => {
+          if (this.sortBy === 'date') {
+            return new Date(a.created_at) - new Date(b.created_at);
+          } else if (this.sortBy === 'time') {
+            return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          }
+        });
+      },
+      filteredCustomers() {
+        return this.customers.filter(customer => {
+          const searchString = this.search.toLowerCase();
+          return (
+            customer.customer_name.toLowerCase().includes(searchString) ||
+            customer.location.toLowerCase().includes(searchString)
+          );
+        });
+      },
+      totalPages() {
+        return Math.ceil(this.filteredCustomers.length / this.pageSize);
+      }
+    },
+    methods: {
+      formatDate(dateTime) {
+        const date = new Date(dateTime);
+        return {
+          date: date.toLocaleDateString(),
+          time: date.toLocaleTimeString()
+        };
+      },
+      sortData() {
+        // No need to do anything here, sorting is done in computed property
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
